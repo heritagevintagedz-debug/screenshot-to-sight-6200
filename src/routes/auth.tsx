@@ -1,0 +1,16 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { ArrowRight, ShieldCheck, ArrowLeftRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useExchange } from "@/features/exchange/context";
+export const Route = createFileRoute("/auth")({ head: () => ({ meta: [{ title: "Connexion — DZ Exchange" }, { name: "description", content: "Découvrez la connexion et l’inscription de démonstration à DZ Exchange." }, { property: "og:title", content: "Connexion — DZ Exchange" }, { property: "og:description", content: "Rejoignez le marché d’échange P2P contre le dinar algérien." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Auth });
+function Auth() {
+  const [signup, setSignup] = useState(false);
+  const [method, setMethod] = useState("email");
+  const [pseudo, setPseudo] = useState("");
+  const { enterDemo } = useExchange();
+  const navigate = useNavigate();
+  const submit = (e: FormEvent) => { e.preventDefault(); enterDemo(pseudo); void navigate({ to: "/" }); };
+  return <div className="auth-page"><span className="brand-mark mb-6"><ArrowLeftRight size={23} /></span><div className="eyebrow">Bienvenue sur DZ Exchange</div><h1>{signup ? "Votre échange commence ici." : "Heureux de vous retrouver."}</h1><p className="subtitle">{signup ? "Rejoignez une communauté d’échange directe et indépendante." : "Accédez à votre espace d’échange en toute confiance."}</p><div className="segments mt-6"><Button variant="segment" className="flex-1" data-active={!signup} onClick={() => setSignup(false)}>Connexion</Button><Button variant="segment" className="flex-1" data-active={signup} onClick={() => setSignup(true)}>Inscription</Button></div><form className="form-stack" onSubmit={submit}>{signup && <label>Pseudo<Input required value={pseudo} onChange={(e) => setPseudo(e.target.value)} placeholder="Karim_G" minLength={3} /></label>}<div className="flex gap-2"><Button type="button" variant="tab" size="sm" data-active={method === "email"} onClick={() => setMethod("email")}>Email</Button><Button type="button" variant="tab" size="sm" data-active={method === "phone"} onClick={() => setMethod("phone")}>Téléphone</Button></div><label>{method === "email" ? "Adresse email fictive" : "Numéro fictif"}<Input key={method} type={method === "email" ? "email" : "tel"} placeholder={method === "email" ? "karim@example.com" : "+213 555 00 00 00"} required autoComplete="off" /></label><label>Mot de passe de démonstration<Input type="password" placeholder="Au moins 8 caractères" minLength={8} required autoComplete="off" /></label><Button variant="gold" type="submit">{signup ? "Simuler la création de compte" : "Simuler la connexion"}<ArrowRight /></Button><Button type="button" variant="outline" onClick={() => { enterDemo("Karim_G"); void navigate({ to: "/" }); }}>Essayer sans inscription<ArrowRight /></Button><Button variant="link" asChild><Link to="/">Consulter le marché en visiteur</Link></Button></form><p className="auth-note"><ShieldCheck size={13} className="mb-2 inline text-primary" /><br />Démonstration uniquement : aucune connexion réelle ni donnée enregistrée. Utilisez des informations fictives.</p></div>;
+}
