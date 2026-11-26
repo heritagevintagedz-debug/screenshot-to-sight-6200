@@ -8,6 +8,12 @@ export type Offer = {
 };
 export const isAllowedPair = (foreign: string, quote: string) => currencies.some((value) => value === foreign) && quote === "DZD";
 export const canTransact = (status: KycStatus) => status === "verified";
+export const offerAction = (direction: Direction) => direction === "sell" ? "Acheter" : "Vendre";
+export function convertAmount(value: number, unit: "foreign" | "DZD", rate: number) {
+  if (!Number.isFinite(value) || !Number.isFinite(rate) || value <= 0 || rate <= 0) return { foreign: 0, dinars: 0 };
+  return unit === "foreign" ? { foreign: value, dinars: calculateTotal(value, rate) } : { foreign: Math.round(value / rate * 1000000) / 1000000, dinars: value };
+}
+export const validTradeAmount = (amount: number, available: number) => Number.isFinite(amount) && amount > 0 && amount <= available;
 export function calculateTotal(amount: number, rate: number) {
   if (!Number.isFinite(amount) || !Number.isFinite(rate) || amount <= 0 || rate <= 0) return 0;
   return Math.round(amount * rate * 100) / 100;

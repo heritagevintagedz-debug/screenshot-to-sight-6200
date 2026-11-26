@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { canTransact, demoOffers, isAllowedPair, calculateTotal, type KycStatus, type Offer } from "./model";
 
-export type Message = { id: string; text: string; mine: boolean; time: string };
+export type Message = { id: string; text: string; mine: boolean; time: string; media?: { kind: "image" | "video" | "audio"; url: string; name: string } };
 type ExchangeState = {
   username: string; signedIn: boolean; kyc: KycStatus; offers: Offer[];
   gateOpen: boolean; publishOpen: boolean; chatOffer: Offer | null;
@@ -12,6 +12,10 @@ type ExchangeState = {
   requestPublish: () => void; requestChat: (offer: Offer) => void;
   addOffer: (offer: Offer) => boolean; sendMessage: (id: string, text: string) => void;
   completeExchange: (id: string) => void;
+  tradeOffer: Offer | null; setTradeOffer: (offer: Offer | null) => void;
+  tradeAmounts: Record<string, number>; confirmTrade: (offer: Offer, amount: number) => boolean;
+  profilePhoto: string; setProfilePhoto: (url: string) => void;
+  sendMedia: (id: string, media: NonNullable<Message["media"]>) => void;
 };
 const ExchangeContext = createContext<ExchangeState | null>(null);
 export function ExchangeProvider({ children }: { children: ReactNode }) {
@@ -25,6 +29,9 @@ export function ExchangeProvider({ children }: { children: ReactNode }) {
   const [conversations, setConversations] = useState<Record<string, Message[]>>({});
   const [activeIds, setActiveIds] = useState<string[]>([]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [tradeOffer, setTradeOffer] = useState<Offer | null>(null);
+  const [tradeAmounts, setTradeAmounts] = useState<Record<string, number>>({});
+  const [profilePhoto, setProfilePhoto] = useState("");
   const allowed = signedIn && canTransact(kyc);
   const requestPublish = () => allowed ? setPublishOpen(true) : setGateOpen(true);
   const requestChat = (offer: Offer) => {
@@ -45,7 +52,19 @@ export function ExchangeProvider({ children }: { children: ReactNode }) {
   const enterDemo = (name: string) => { setUsername(name.trim() || "Karim_G"); setSignedIn(true); setKyc("required"); };
   const signOut = () => { setSignedIn(false); setKyc("required"); setChatOffer(null); setPublishOpen(false); setGateOpen(false); setConversations({}); setActiveIds([]); setCompletedIds([]); setOffers(demoOffers); };
   const completeExchange = (id: string) => { if (!allowed) return; setCompletedIds((ids) => ids.includes(id) ? ids : [...ids, id]); };
-  return <ExchangeContext.Provider value={{ username, signedIn, kyc, offers, gateOpen, publishOpen, chatOffer, conversations, activeIds, completedIds, setGateOpen, setPublishOpen, setChatOffer, setKyc, enterDemo, signOut, requestPublish, requestChat, addOffer, sendMessage, completeExchange }}>{children}</ExchangeContext.Provider>;
+  const confirmTrade = (offer: Offer, amount: number) => {
+    if (!Number.isFinite(amount) || amount <= 0 || amount > offer.amount) return false;
+    if (!allowed) { setTradeOffer(null); setGateOpen(true); return false; }
+    setTradeAmounts((all) => ({ ...all, [offer.id]: amount }));
+    setTradeOffer(null); requestChat(offer); return true;
+  };
+  const sendMedia = (id: string, media: NonNullable<Message["media"]>) => {
+    if (!allowed || !activeIds.includes(id)) return;
+    const time = new Intl.DateTimeFormat("fr", { hour: "2-digit", minute: "2-digit" }).format(new Date());
+    setConversations((all) => ({ ...all, [id]: [...(all[id] ?? []), { id: crypto.randomUUID(), text: "", mine: true, time, media }] }));
+  };
+  const cleanSignOut = () => { signOut(); setProfilePhoto(""); setTradeOffer(null); setTradeAmounts({}); };
+  return <ExchangeContext.Provider value={{ username, signedIn, kyc, offers, gateOpen, publishOpen, chatOffer, conversations, activeIds, completedIds, setGateOpen, setPublishOpen, setChatOffer, setKyc, enterDemo, signOut: cleanSignOut, requestPublish, requestChat, addOffer, sendMessage, completeExchange, tradeOffer, setTradeOffer, tradeAmounts, confirmTrade, profilePhoto, setProfilePhoto, sendMedia }}>{children}</ExchangeContext.Provider>;
 }
 export function useExchange() {
   const value = useContext(ExchangeContext);

@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { useExchange } from "./context";
 import { CustodyBanner } from "./shared";
 import { calculateTotal, currencies, number, rates, type Currency, type Direction } from "./model";
+import { TradeDialog } from "./trade-dialog";
+import { MediaComposer } from "./media-composer";
 
 export function ExchangeModals() {
   const state = useExchange();
@@ -14,6 +16,7 @@ export function ExchangeModals() {
     <Dialog open={state.gateOpen} onOpenChange={state.setGateOpen}><DialogContent><div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"><ShieldCheck size={26} /></div><DialogTitle>La confiance commence par la vérification</DialogTitle><DialogDescription>{!state.signedIn ? "Connectez-vous pour vérifier votre identité et échanger avec la communauté." : state.kyc === "pending" ? "Votre vérification est en attente. La publication et la messagerie restent verrouillées jusqu’à sa validation." : "Vérifiez votre identité pour publier une offre et accéder au chat E2EE. Le marché reste librement accessible."}</DialogDescription><Button variant="gold" asChild onClick={() => state.setGateOpen(false)}><Link to={state.signedIn ? "/profile" : "/auth"}>{state.signedIn ? "Compléter ma vérification" : "Se connecter"}<ArrowRight /></Link></Button><p className="text-center text-[10px] text-muted-foreground">Parcours simulé : aucune identité réelle n’est vérifiée.</p></DialogContent></Dialog>
     <PublishDialog />
     <ChatDialog />
+    <TradeDialog />
   </>;
 }
 function PublishDialog() {
@@ -39,11 +42,11 @@ function PublishDialog() {
   </form></DialogContent></Dialog>;
 }
 function ChatDialog() {
-  const { chatOffer, setChatOffer, conversations, sendMessage } = useExchange();
+  const { chatOffer, setChatOffer, conversations, sendMessage, tradeAmounts } = useExchange();
   const [text, setText] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
   const messages = chatOffer ? conversations[chatOffer.id] ?? [] : [];
   useEffect(() => { bottom.current?.scrollIntoView({ block: "nearest" }); }, [messages.length]);
   const submit = (e: FormEvent) => { e.preventDefault(); if (!chatOffer || !text.trim()) return; sendMessage(chatOffer.id, text); setText(""); };
-  return <Dialog open={chatOffer !== null} onOpenChange={(open) => { if (!open) { setChatOffer(null); setText(""); } }}><DialogContent className="chat-modal"><div className="chat-header"><span className="avatar">{chatOffer?.initials}</span><div><DialogTitle>{chatOffer?.username}</DialogTitle><p className="mt-2 text-[10px] text-muted-foreground">{chatOffer?.currency} / DZD · {number(chatOffer?.amount ?? 0)} {chatOffer?.currency}</p></div></div><DialogDescription className="flex items-center gap-2 text-primary"><LockKeyhole size={13} />Chat E2EE · aperçu de démonstration</DialogDescription><p className="text-[10px] leading-relaxed text-muted-foreground">Messages simulés dans cette session, non transmis et non chiffrés. Le chiffrement de bout en bout n’est pas encore connecté.</p><CustodyBanner compact /><div className="chat-messages" aria-live="polite">{messages.map((message) => <div key={message.id} className={`chat-bubble ${message.mine ? "mine" : ""}`}>{message.text}<small>{message.time}{message.mine && <Check size={10} className="ml-1 inline text-primary" />}</small></div>)}<div ref={bottom} /></div><form className="chat-input" onSubmit={submit}><Input aria-label="Votre message" placeholder="Écrire un message…" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} /><Button variant="gold" size="icon" type="submit" disabled={!text.trim()} aria-label="Envoyer le message"><Send /></Button></form></DialogContent></Dialog>;
+  return <Dialog open={chatOffer !== null} onOpenChange={(open) => { if (!open) { setChatOffer(null); setText(""); } }}><DialogContent className="chat-modal"><div className="chat-header"><span className="avatar">{chatOffer?.initials}</span><div><DialogTitle>{chatOffer?.username}</DialogTitle><p className="mt-2 text-[10px] text-muted-foreground">{chatOffer?.currency} / DZD · {number(chatOffer ? tradeAmounts[chatOffer.id] ?? chatOffer.amount : 0, 2)} {chatOffer?.currency}</p></div></div><DialogDescription className="flex items-center gap-2 text-primary"><LockKeyhole size={13} />Discussion privée · démonstration</DialogDescription><p className="text-[10px] leading-relaxed text-muted-foreground">Messages et médias locaux, non transmis et non chiffrés. Le chiffrement E2EE n’est pas encore connecté.</p><CustodyBanner compact /><div className="chat-messages" aria-live="polite">{messages.map((message) => <div key={message.id} className={`chat-bubble ${message.mine ? "mine" : ""}`}>{message.text}{message.media?.kind === "image" && <img className="message-image" src={message.media.url} alt={message.media.name} />}{message.media?.kind === "video" && <video className="message-video" src={message.media.url} controls playsInline />}{message.media?.kind === "audio" && <audio className="message-audio" src={message.media.url} controls />}<small>{message.time}{message.mine && <Check size={10} className="ml-1 inline text-primary" />}</small></div>)}<div ref={bottom} /></div><form className="chat-input" onSubmit={submit}><Input aria-label="Votre message" placeholder="Écrire un message…" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} /><Button variant="gold" size="icon" type="submit" disabled={!text.trim()} aria-label="Envoyer le message"><Send /></Button></form>{chatOffer && <MediaComposer key={chatOffer.id} offerId={chatOffer.id} />}</DialogContent></Dialog>;
 }

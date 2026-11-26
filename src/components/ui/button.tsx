@@ -9,6 +9,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        purchase: "bg-success text-primary-foreground hover:bg-success/85 font-semibold",
+        sell: "bg-destructive text-destructive-foreground hover:bg-destructive/85 font-semibold",
         gold: "bg-primary text-primary-foreground hover:bg-gold-soft font-semibold shadow-sm",
         tab: "border border-border bg-card text-muted-foreground hover:bg-secondary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:border-primary",
         segment: "text-muted-foreground hover:text-foreground data-[active=true]:bg-secondary data-[active=true]:text-foreground",

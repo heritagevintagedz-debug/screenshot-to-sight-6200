@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as ProfileRouteImport } from './routes/profile'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const ExchangesRoute = ExchangesRouteImport.update({
   path: '/exchanges',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/exchanges': typeof ExchangesRoute
+  '/market': typeof MarketRoute
   '/profile': typeof ProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/exchanges': typeof ExchangesRoute
+  '/market': typeof MarketRoute
   '/profile': typeof ProfileRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/exchanges': typeof ExchangesRoute
+  '/market': typeof MarketRoute
   '/profile': typeof ProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/exchanges' | '/profile'
+  fullPaths: '/' | '/auth' | '/exchanges' | '/market' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/exchanges' | '/profile'
-  id: '__root__' | '/' | '/auth' | '/exchanges' | '/profile'
+  to: '/' | '/auth' | '/exchanges' | '/market' | '/profile'
+  id: '__root__' | '/' | '/auth' | '/exchanges' | '/market' | '/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   ExchangesRoute: typeof ExchangesRoute
+  MarketRoute: typeof MarketRoute
   ProfileRoute: typeof ProfileRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExchangesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   ExchangesRoute: ExchangesRoute,
+  MarketRoute: MarketRoute,
   ProfileRoute: ProfileRoute,
 }
 export const routeTree = rootRouteImport
