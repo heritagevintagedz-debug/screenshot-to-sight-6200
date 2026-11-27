@@ -33,3 +33,4 @@ use the editor.
 - Keep demo exchange state in the shared ExchangeProvider; session-only simulated identity and messaging must not be presented as real authentication, KYC, or encryption.
 - Keep currency-pair validation, KYC action gating, and DZD calculations in the exchange model and provider, with concrete unit tests so every entry point follows the same rules.
 - Use top-level TanStack routes for the market, exchange tracking, profile, and demo sign-in, with the shared shell in the root route to preserve navigation and session state.
+- Keep theme preference and the once-per-tab introduction in ExchangePresentation, separate from ExchangeProvider, so visual changes cannot alter exchange state; browser storage holds presentation preferences only.

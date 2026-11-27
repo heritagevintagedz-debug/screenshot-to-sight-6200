@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ExchangeProvider } from "@/features/exchange/context";
 import { AppShell } from "@/features/exchange/shared";
 import { ExchangeModals } from "@/features/exchange/modals";
+import { ExchangePresentation } from "@/features/exchange/presentation";
 
 function NotFoundComponent() {
   return (
@@ -109,7 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="fr" className="dark">
       <head>
         <HeadContent />
       </head>
@@ -127,7 +128,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <ExchangeProvider><AppShell><Outlet /></AppShell><ExchangeModals /></ExchangeProvider>
+      <ExchangePresentation><ExchangeProvider><AppShell><Outlet /></AppShell><ExchangeModals /></ExchangeProvider></ExchangePresentation>
     </QueryClientProvider>
   );
 }
