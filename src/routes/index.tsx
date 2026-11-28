@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowLeftRight, ShieldCheck, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useExchange } from "@/features/exchange/context";
-import { KycBadge, CustodyBanner } from "@/features/exchange/shared";
-import coins from "@/assets/dz-exchange-coins.asset.json";
-export const Route = createFileRoute("/")({ head: () => ({ meta: [{ title: "Accueil — DZ Exchange" }, { name: "description", content: "Votre espace personnel DZ Exchange : vérification, accords P2P et accès au marché de devises contre DZD." }, { property: "og:title", content: "Accueil — DZ Exchange" }, { property: "og:description", content: "Vos échanges, votre contrôle. Retrouvez votre espace personnel." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Home });
-function Home() {
-  const { username, signedIn, activeIds, completedIds, requestPublish } = useExchange();
-  return <><div className="intro"><div><div className="eyebrow">Votre espace personnel</div><h1>Bonjour, {signedIn ? username : "bienvenue"}.</h1><p className="subtitle">Retrouvez vos échanges et votre communauté.</p></div><KycBadge /></div><section className="home-feature"><img src={coins.url} alt="Pièces dorées symbolisant l’échange direct" /><div><span className="eyebrow">L’échange direct, en toute confiance</span><h2>DZ Exchange</h2><p>Vos devises. Votre contrôle.<br />EUR, USD et CAD, exclusivement contre DZD.</p><Button variant="gold" asChild><Link to="/market">Accéder au marché P2P<ArrowRight /></Link></Button></div></section><CustodyBanner /><div className="home-stats"><div><span>Discussions en cours</span><strong>{activeIds.length - completedIds.length}</strong></div><div><span>Échanges terminés · démo</span><strong>{completedIds.length}</strong></div><div><span>Devises disponibles</span><strong>EUR · USD · CAD</strong></div></div><h2 className="mb-5 mt-9">Votre prochaine étape</h2><div className="home-actions"><Link to="/profile"><ShieldCheck /><div><strong>Vérifier mon identité</strong><span>Profil, photo et sécurité</span></div><ArrowRight /></Link><Link to="/exchanges"><ArrowLeftRight /><div><strong>Retrouver mes échanges</strong><span>Accords et conversations</span></div><ArrowRight /></Link><Button variant="outline" onClick={requestPublish}><Plus />Publier une offre<ArrowRight /></Button></div></>;
-}
+import { createFileRoute } from "@tanstack/react-router";
+import { Dashboard } from "@/features/exchange/dashboard";
+
+export const Route = createFileRoute("/")({
+  head: () => ({ meta: [
+    { title: "Tableau de bord — DZ Exchange" },
+    { name: "description", content: "Votre tableau de bord DZ Exchange : suivi de vos échanges, annonces P2P et devises EUR, USD et CAD contre DZD. Démonstration sans fonds détenus." },
+    { property: "og:title", content: "Tableau de bord — DZ Exchange" },
+    { property: "og:description", content: "Retrouvez votre activité, vos annonces et les offres de devises dans votre espace personnel DZ Exchange." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
+  component: Dashboard,
+});

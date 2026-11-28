@@ -1,4 +1,8 @@
 # DZ Exchange
+## Modernisation de l’accueil — deuxième étape
+- [ ] Refaire uniquement l’accueil : identité, notifications de suivi, statistiques, devises, raccourcis, activité et annonces existantes.
+- [ ] Tester les statistiques et vérifier les raccourcis et l’affichage sur ordinateur et smartphone.
+
 - [x] Créer le marché P2P et les filtres EUR, USD, CAD contre DZD.
 - [x] Ajouter les parcours de démonstration connexion, profil et KYC.
 - [x] Ajouter la publication, le suivi des échanges et la messagerie de démonstration avec verrouillage KYC.
